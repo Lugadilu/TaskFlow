@@ -1,0 +1,31 @@
+@base_address = http://localhost:5000/api/Tasks
+### Get All Tasks
+GET {{base_address}}
+
+###
+POST {{base_address}}
+Content-Type: application/json
+
+{
+    "title": "Last one for understanding",
+    "description": "This is a new task",
+    "createdAt": "2024-06-01T10:00:00Z",
+    "dueDate": "2024-06-10T10:00:00Z",
+    "isCompleted": false
+}
+### Get Task by ID
+GET {{base_address}}/3
+### Update Task
+PUT {{base_address}}/3
+Content-Type: application/json
+
+{
+    "id": 2,
+    "title": "new Task Title Trial",
+    "description": "Updated description",
+    "createdAt": "2024-06-01T10:00:00Z",
+    "dueDate": "2024-06-15T10:00:00Z",
+    "isCompleted": true
+}
+### Delete Task
+DELETE {{base_address}}/1
