@@ -1,3 +1,7 @@
+import { useAuth } from '../assets/contexts/AuthContext.jsx';
+import { useNavigate } from 'react-router-dom';
+import { LogOut } from 'lucide-react';
+
 import { useState, useEffect } from 'react';
 import { taskApi } from '../services/api';
 import TaskList from '../components/TaskList';
@@ -18,6 +22,8 @@ const TaskPage = () => {
   const [greeting, setGreeting] = useState('');
   const [filter, setFilter] = useState('all'); // all | active | completed
   const [activeForm, setActiveForm] = useState('create'); // create | update | delete
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTasks();
@@ -93,6 +99,17 @@ const TaskPage = () => {
                 <p className="text-xl font-bold leading-none">{tasks.length}</p>
               </div>
             </div>
+             {/* Logout Button */}
+              <button
+                onClick={() => {
+                  logout();
+                  navigate('/login');
+                }}
+                className="flex items-center gap-1 bg-red-600 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:bg-red-700"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
           </motion.div>
         </header>
 

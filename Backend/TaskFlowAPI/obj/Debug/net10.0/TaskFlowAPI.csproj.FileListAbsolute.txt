@@ -184,3 +184,7 @@ C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\obj\Debug\net10.0\
 C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\obj\Debug\net10.0\TaskFlowAPI.pdb
 C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\obj\Debug\net10.0\TaskFlowAPI.genruntimeconfig.cache
 C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\obj\Debug\net10.0\ref\TaskFlowAPI.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\BCrypt.Net-Next.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\obj\Debug\net10.0\TaskFlowAPI.sourcelink.json

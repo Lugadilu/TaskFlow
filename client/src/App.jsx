@@ -1,7 +1,13 @@
 import TaskPage from './pages/TaskPage';
+import LoginPage from './pages/LoginPage';
+import { useAuth } from './assets/contexts/AuthContext.jsx';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import ProtectedRoute from './components/ProtectedRoute';
+import RegisterPage from './pages/RegisterPage';
 
 function App() {
- // const isAuthenticated = /* read from state/context/localStorage */;
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="min-h-screen bg-slate-900/5">
       {/* Top bar */}
@@ -20,9 +26,23 @@ function App() {
       </header>
 
       {/* Main content */}
-      <main>
-        <TaskPage />
-      { /* {isAuthenticated ? <TaskPage /> : <AuthPage />}   // e.g. Login / Signup */}
+       <main>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <TaskPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
     </div>
   );

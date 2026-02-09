@@ -12,6 +12,42 @@ const api = axios.create({
   },
 });
 
+//automatically attach TWT token if it exists
+api.interceptors.request.use(
+  (config) => {
+    // Read token that AuthContext stored in localStorage
+    const token = localStorage.getItem('token');
+
+    if (token) {
+      // Add header: Authorization: Bearer <token>
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Auth API (login + register)
+export const authApi = {
+  // POST /api/auth/login
+  login: async ({ email, password}) => {
+    const response = await api.post('/auth/login', { email, password });
+    return response.data; //you will receive the token here, which you can store in AuthContext
+  },
+  // POST /api/auth/register
+  register: async ({ username, email, password}) => {
+    const response = await api.post('/auth/register', {
+      username,
+      email,
+      password
+    });
+    return response.data; //you can choose what to return here, maybe a success message or the created user
+    },
+};
+
 // "Service layer" for all task-related calls
 // Each function matches one backend endpoint you listed.
 export const taskApi = {
