@@ -188,3 +188,6 @@ C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\
 C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\obj\Debug\net10.0\TaskFlowAPI.sourcelink.json
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\BouncyCastle.Cryptography.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\MailKit.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\MimeKit.dll

@@ -36,6 +36,10 @@ namespace TaskFlowAPI.Migrations
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -52,6 +56,7 @@ namespace TaskFlowAPI.Migrations
                             Description = "This is a sample task description.",
                             DueDate = new DateTime(2024, 1, 22, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsCompleted = false,
+                            Priority = "Medium",
                             Title = "Learn .NET API"
                         },
                         new
@@ -61,6 +66,7 @@ namespace TaskFlowAPI.Migrations
                             Description = "This is another task description.",
                             DueDate = new DateTime(2024, 1, 29, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsCompleted = false,
+                            Priority = "Medium",
                             Title = "Learn React"
                         });
                 });
@@ -80,6 +86,12 @@ namespace TaskFlowAPI.Migrations
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordResetToken")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("PasswordResetTokenExpiry")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Username")

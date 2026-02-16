@@ -12,7 +12,7 @@ const api = axios.create({
   },
 });
 
-//automatically attach TWT token if it exists
+//automatically attach TWT token if it exists--middleware for axios--runs before every request
 api.interceptors.request.use(
   (config) => {
     // Read token that AuthContext stored in localStorage
@@ -30,13 +30,28 @@ api.interceptors.request.use(
   }
 );
 
-// Auth API (login + register)
+// Auth API (login + register + forgot/reset password)
 export const authApi = {
   // POST /api/auth/login
   login: async ({ email, password}) => {
     const response = await api.post('/auth/login', { email, password });
     return response.data; //you will receive the token here, which you can store in AuthContext
   },
+
+   // Request password reset (sends email)
+  forgotPassword: async (email) => {
+    const response = await api.post('/auth/forgot-password', { email });
+    return response.data;
+  },
+  // Reset password with token
+  resetPassword: async (token, newPassword) => {
+    const response = await api.post('/auth/reset-password', { 
+      token, 
+      newPassword 
+    });
+    return response.data;
+  },
+
   // POST /api/auth/register
   register: async ({ username, email, password}) => {
     const response = await api.post('/auth/register', {
@@ -52,8 +67,8 @@ export const authApi = {
 // Each function matches one backend endpoint you listed.
 export const taskApi = {
   // GET /api/tasks
-  getAllTasks: async () => {
-    const response = await api.get('/tasks');
+  getAllTasks: async (params = {}) => {
+    const response = await api.get('/tasks', { params });
     return response.data;
   },
 

@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
@@ -17,12 +18,14 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.2" />
+    <PackageReference Include="MimeKit" Version="4.14.0" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Controllers\" />
     <Folder Include="Data\" />
     <Folder Include="Models\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

@@ -6,13 +6,15 @@ import {
   AlignLeft,
   Type,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  Flag // New icon for Priority
 } from 'lucide-react';
 
 const CreateTaskForm = ({ onTaskCreated }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [priority, setPriority] = useState('Medium'); // Added Priority state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -30,12 +32,15 @@ const CreateTaskForm = ({ onTaskCreated }) => {
       await taskApi.createTask({
         title: title.trim(),
         description: description.trim(),
-        dueDate: dueDate || null
+        dueDate: dueDate || null,
+        priority: priority // Send the priority to backend
       });
 
+      // Reset form
       setTitle('');
       setDescription('');
       setDueDate('');
+      setPriority('Medium');
 
       onTaskCreated?.();
     } catch (err) {
@@ -94,6 +99,39 @@ const CreateTaskForm = ({ onTaskCreated }) => {
             />
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Due Date */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-slate-400" />
+                Due date
+              </label>
+              <input
+                type="date"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-600 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+              />
+            </div>
+
+            {/* Priority Selection */}
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
+                <Flag className="w-4 h-4 text-slate-400" />
+                Priority
+              </label>
+              <select
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-600 transition bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+              >
+                <option value="Low">Low Priority</option>
+                <option value="Medium">Medium Priority</option>
+                <option value="High">High Priority</option>
+              </select>
+            </div>
+          </div>
+
           {/* Description */}
           <div className="space-y-1">
             <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
@@ -104,22 +142,8 @@ const CreateTaskForm = ({ onTaskCreated }) => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional details or context…"
-              rows={4}
+              rows={3}
               className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-            />
-          </div>
-
-          {/* Due Date */}
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700 flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-slate-400" />
-              Due date
-            </label>
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-600 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
             />
           </div>
         </div>

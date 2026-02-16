@@ -1,6 +1,7 @@
 @base_address = http://localhost:5000/api/Tasks
 ### Get All Tasks
-GET {{base_address}}
+//GET {{base_address}}
+GET {{base_address}}?isCompleted=true
 
 ###
 POST {{base_address}}
@@ -29,3 +30,52 @@ Content-Type: application/json
 }
 ### Delete Task
 DELETE {{base_address}}/1
+
+
+
+### Register
+POST http://localhost:5000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "mm",
+  "email": "md@gmail.com",
+  "password": "Test123!"
+}
+
+###
+
+### Login (to verify register works)
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+    "username": "mm",
+  "email": "md@gmail.com",
+  "password": "Test123!"
+}
+
+###
+
+### Forgot password
+POST http://localhost:5000/api/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "nelliemutethia@gmail.com"
+}
+
+###
+
+### Reset password (after you get the token from email)
+POST http://localhost:5000/api/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "drLgQG68CQb8USYAuhIrjov1bS3976Lpf9J3wr/mATs=",
+  "newPassword": "NewPass123!"
+}
+
+// get search 
+
+

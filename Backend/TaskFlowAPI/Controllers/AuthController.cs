@@ -7,6 +7,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using TaskFlowAPI.Services;
+using System.Security.Cryptography;
 
 
 namespace TaskFlowAPI.Controllers 
@@ -17,12 +19,14 @@ namespace TaskFlowAPI.Controllers
     {
         private readonly AppDbContext _context;  // Add this
         private readonly IConfiguration _config;
+        private readonly IEmailSender _emailSender; // Add this
 
         // Constructor with both dependencies
-        public AuthController(AppDbContext context, IConfiguration config)
+        public AuthController(AppDbContext context, IConfiguration config, IEmailSender emailSender)
         {
             _context = context;
             _config = config;
+            _emailSender = emailSender;
         }
 
         [HttpPost("register")]
@@ -75,6 +79,79 @@ namespace TaskFlowAPI.Controllers
             var token = GenerateJwtToken(user);
             
             return Ok(new { token });
+
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+
+            // Security: do not reveal whether the email exists
+            if (user == null)
+            {
+                return Ok(new { message = "If an account exists for this email, you will receive a reset link." });
+            }
+
+            // Generate a random token
+            var tokenBytes = RandomNumberGenerator.GetBytes(32);
+            var token = Convert.ToBase64String(tokenBytes);
+
+            user.PasswordResetToken = token;
+            user.PasswordResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+
+            //prints out the token to the console for testing purposes. In production, you would remove this and rely solely on email delivery.
+            Console.WriteLine("========================================");
+            Console.WriteLine($"DEBUG: Token for {request.Email} is:");
+            Console.WriteLine(token);
+            Console.WriteLine("========================================");
+
+            user.PasswordResetToken = token;
+
+            await _context.SaveChangesAsync();
+
+            // Build reset URL pointing to your React app
+            var baseUrl = _config["App:FrontendBaseUrl"]?.TrimEnd('/') ?? "http://localhost:5173";
+            var resetLink = $"{baseUrl}/reset-password?token={Uri.EscapeDataString(token)}";
+
+            var subject = "TaskFlow – Reset your password";
+            var body = $@"
+                <p>Hi {user.Username},</p>
+                <p>You requested a password reset. Click the link below (valid for 1 hour):</p>
+                <p><a href=""{resetLink}"">Reset password</a></p>
+                <p>If you didn't request this, you can ignore this email.</p>
+            ";
+
+            await _emailSender.SendEmailAsync(user.Email, subject, body);
+
+            return Ok(new { message = "If an account exists for this email, you will receive a reset link." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Token) || string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                return BadRequest(new { message = "Token and new password are required." });
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u =>
+                u.PasswordResetToken == request.Token &&
+                u.PasswordResetTokenExpiry != null &&
+                u.PasswordResetTokenExpiry > DateTime.UtcNow);
+
+            if (user == null)
+            {
+                return BadRequest(new { message = "Invalid or expired reset link. Request a new one." });
+            }
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            user.PasswordResetToken = null;
+            user.PasswordResetTokenExpiry = null;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Password has been reset. You can sign in with your new password." });
         }
 
         private string GenerateJwtToken(User user)

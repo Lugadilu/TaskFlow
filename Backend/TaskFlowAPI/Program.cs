@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using TaskFlowAPI.Data;
 using System.Text;
+using TaskFlowAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +28,8 @@ var jwtKey = builder.Configuration["Jwt:Key"]
 
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "TaskFlowServer";
 var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "TaskFlowClient";
+
+
 
 // 2. Configure Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -54,6 +57,9 @@ builder.Services.AddControllers();
 // 4. Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// 5. Add Email Sender Service
+   builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
 var app = builder.Build();
 

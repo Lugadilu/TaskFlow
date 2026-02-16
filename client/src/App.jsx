@@ -4,6 +4,8 @@ import { useAuth } from './assets/contexts/AuthContext.jsx';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';  
+import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function App() {
   const { isAuthenticated } = useAuth();
@@ -39,6 +41,9 @@ function App() {
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -46,6 +51,4 @@ function App() {
       </main>
     </div>
   );
-}
-
-export default App;
+}export default App;
