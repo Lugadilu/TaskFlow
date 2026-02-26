@@ -23,7 +23,23 @@ namespace TaskFlowAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("AssignedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("AssignedByUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("AssignedToUserId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeletedBy")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
@@ -36,6 +52,11 @@ namespace TaskFlowAPI.Migrations
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Priority")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -44,7 +65,16 @@ namespace TaskFlowAPI.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("AssignedByUserId");
+
+                    b.HasIndex("AssignedToUserId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("TaskItems");
 
@@ -53,21 +83,27 @@ namespace TaskFlowAPI.Migrations
                         {
                             Id = 1,
                             CreatedAt = new DateTime(2024, 1, 15, 10, 0, 0, 0, DateTimeKind.Utc),
+                            DeletedBy = "",
                             Description = "This is a sample task description.",
                             DueDate = new DateTime(2024, 1, 22, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsCompleted = false,
-                            Priority = "Medium",
-                            Title = "Learn .NET API"
+                            IsDeleted = false,
+                            Priority = "High",
+                            Title = "Learn .NET API",
+                            UserId = 1
                         },
                         new
                         {
                             Id = 2,
                             CreatedAt = new DateTime(2024, 1, 15, 11, 0, 0, 0, DateTimeKind.Utc),
+                            DeletedBy = "",
                             Description = "This is another task description.",
                             DueDate = new DateTime(2024, 1, 29, 23, 59, 59, 0, DateTimeKind.Utc),
                             IsCompleted = false,
-                            Priority = "Medium",
-                            Title = "Learn React"
+                            IsDeleted = false,
+                            Priority = "High",
+                            Title = "Learn React",
+                            UserId = 2
                         });
                 });
 
@@ -94,6 +130,10 @@ namespace TaskFlowAPI.Migrations
                     b.Property<DateTime?>("PasswordResetTokenExpiry")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -101,6 +141,65 @@ namespace TaskFlowAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "demo@taskflow.com",
+                            PasswordHash = "temp_password_hash",
+                            Role = "User",
+                            Username = "demo_user"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "test@taskflow.com",
+                            PasswordHash = "test_password_hash",
+                            Role = "User",
+                            Username = "test_user"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "admin@taskflow.com",
+                            PasswordHash = "$2a$10$Zwr2I2HZA635nc93HThiT./SU9IznGM3oeBOsEa9AQQTHh9ZJSiye",
+                            Role = "Admin",
+                            Username = "admin"
+                        });
+                });
+
+            modelBuilder.Entity("TaskFlowAPI.Models.TaskItem", b =>
+                {
+                    b.HasOne("TaskFlowAPI.Models.User", "AssignedByUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TaskFlowAPI.Models.User", "AssignedToUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedToUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("TaskFlowAPI.Models.User", "User")
+                        .WithMany("Tasks")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AssignedByUser");
+
+                    b.Navigation("AssignedToUser");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TaskFlowAPI.Models.User", b =>
+                {
+                    b.Navigation("Tasks");
                 });
 #pragma warning restore 612, 618
         }

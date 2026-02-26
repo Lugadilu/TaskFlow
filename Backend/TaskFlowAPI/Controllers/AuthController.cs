@@ -29,7 +29,7 @@ namespace TaskFlowAPI.Controllers
             _emailSender = emailSender;
         }
 
-        [HttpPost("register")]
+    [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             // Check if user already exists
@@ -47,13 +47,29 @@ namespace TaskFlowAPI.Controllers
                 Username = request.Username,
                 Email = request.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                Role = "User"
             };
             
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             
-            return Ok(new { message = "User registered successfully" });
+            // Generate JWT token for the new user
+            var token = GenerateJwtToken(user);
+            
+            //  Return token so user is automatically logged in
+            return Ok(new 
+            { 
+                message = "User registered successfully",
+                token = token,
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                    role = user.Role
+                }
+            });
         }
 
         [HttpPost("login")]
@@ -78,7 +94,17 @@ namespace TaskFlowAPI.Controllers
             // 4. Generate JWT token
             var token = GenerateJwtToken(user);
             
-            return Ok(new { token });
+             return Ok(new 
+            { 
+                token,
+                user = new
+                {
+                    id = user.Id,
+                    username = user.Username,
+                    email = user.Email,
+                    role = user.Role
+                }
+            });
 
         }
 
@@ -166,11 +192,15 @@ namespace TaskFlowAPI.Controllers
                 Encoding.UTF8.GetBytes(jwtKey));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             
+            // DEBUG: Print what's being added to token
+            Console.WriteLine($"DEBUG TOKEN: Id={user.Id}, Username={user.Username}, Email={user.Email}, Role={user.Role}");
+            
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Name, user.Username)
+                new Claim(ClaimTypes.Name, user.Username ?? "Unknown"),  // ✅ Add null check
+                new Claim(ClaimTypes.Role, user.Role)
             };
             
             var token = new JwtSecurityToken(

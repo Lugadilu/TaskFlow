@@ -5,6 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 function RegisterPage() {
   const navigate = useNavigate();
 
+  const [username, setUsername] = useState('');  // ✅ ADD THIS
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,6 +17,12 @@ function RegisterPage() {
     e.preventDefault();
     setError('');
 
+    // ✅ ADD USERNAME VALIDATION
+    if (!username.trim()) {
+      setError('Username is required');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -24,14 +31,14 @@ function RegisterPage() {
     setLoading(true);
 
     try {
-      // Call backend: POST /api/auth/register
-      await authApi.register({ email, password });
+      // ✅ PASS USERNAME TO BACKEND
+      await authApi.register({ username, email, password });
 
       // After successful signup → go to login
       navigate('/login');
     } catch (err) {
       if (err.response && err.response.status === 400) {
-        setError('User already exists');
+        setError(err.response.data.message || 'User already exists');
       } else {
         setError('Registration failed. Try again.');
       }
@@ -57,6 +64,21 @@ function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* ✅ ADD USERNAME FIELD */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-1">
+              Username
+            </label>
+            <input
+              type="text"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Choose a username"
+              required
+            />
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
               Email

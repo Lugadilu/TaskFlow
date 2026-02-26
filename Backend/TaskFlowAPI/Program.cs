@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using TaskFlowAPI.Data;
 using System.Text;
 using TaskFlowAPI.Services;
+using TaskFlowAPI.Hubs;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,7 @@ builder.Services.AddCors(options =>
                   .AllowAnyMethod()
                   .AllowAnyHeader()
                   .AllowCredentials();
+                 
         });
 });
 
@@ -45,6 +48,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
+          // Configure SignalR to use JWT from query string
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -61,6 +77,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // 5. Add Email Sender Service
    builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 
+   // Register the background cleanup service
+builder.Services.AddHostedService<TaskCleanupService>();
+
+// 6. Add Export Service
+builder.Services.AddScoped<IExportService, ExportService>();
+
+ // 7 SignalR service
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 // ========== CRITICAL: ADD THIS LINE ==========
@@ -76,5 +101,9 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Map the SignalR hub
+app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<ChatHub>("/hubs/chat");
 
 app.Run();

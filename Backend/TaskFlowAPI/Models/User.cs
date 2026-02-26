@@ -14,4 +14,10 @@ public class User
         public DateTime? PasswordResetTokenExpiry { get; set; }
 
 
+        public string Role { get; set; } = "User"; // Default to "User"
+        // Possible values: "User" or "Admin"
+        
+    public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
+
+
 }

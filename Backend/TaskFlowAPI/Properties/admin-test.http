@@ -1,0 +1,66 @@
+@base_url = http://localhost:5000/api
+@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJhZG1pbkB0YXNrZmxvdy5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiYWRtaW4iLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc3MTkyMDk0NSwiaXNzIjoiVGFza0Zsb3dBUEkiLCJhdWQiOiJUYXNrRmxvd0NsaWVudCJ9.KV-uoXxfyRgOLY8jYAwKCndNPc7W_PNK_1fV234TYgM
+
+### 1. Login as admin
+POST {{base_url}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@taskflow.com",
+  "password": "password"
+}
+
+### 2. Get all users (copy token from login response above)
+GET {{base_url}}/admin/users
+Authorization: Bearer {{admin_token}}
+
+### 1. Admin creates a new regular user
+POST {{base_url}}/admin/users
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "username": "lugadilu",
+  "email": "lugadilu@gmail.com",
+  "password": "Password123!",
+  "role": "User"
+}
+
+### 3. Get statistics
+GET {{base_url}}/admin/stats
+Authorization: Bearer {{admin_token}}
+
+### 4. Get all tasks
+GET {{base_url}}/admin/tasks
+Authorization: Bearer {{admin_token}}
+
+
+### 6. Create a task assigned to test_user (ID: 2)
+POST {{base_url}}/tasks
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "title": "Review Code Changes",
+  "description": "Please review the latest pull request",
+  "dueDate": "2024-02-28T00:00:00",
+  "priority": "Medium",
+  "userId": 2,
+  "assignedToUserId": 2,
+  "assignedByUserId": 3
+}
+
+### 7. Create a task with multiple assignments
+POST {{base_url}}/tasks
+Authorization: Bearer {{admin_token}}
+Content-Type: application/json
+
+{
+  "title": "Team Meeting Preparation",
+  "description": "Prepare slides for the sprint review",
+  "dueDate": "2024-02-25T00:00:00",
+  "priority": "Low",
+  "userId": 1,
+  "assignedToUserId": 2,
+  "assignedByUserId": 3
+}

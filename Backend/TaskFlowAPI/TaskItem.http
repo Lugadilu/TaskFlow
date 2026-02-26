@@ -1,81 +1,85 @@
 @base_address = http://localhost:5000/api/Tasks
-### Get All Tasks
-//GET {{base_address}}
-GET {{base_address}}?isCompleted=true
+@auth_base = http://localhost:5000/api/auth
+@token = 
+
+#########################################
+### AUTHENTICATION
+#########################################
+
+### Register (returns token)
+POST {{auth_base}}/register
+Content-Type: application/json
+
+{
+  "username": "john",
+  "email": "mc@gmail.com",
+  "password": "password"
+}
 
 ###
+
+### Login (returns token)
+POST {{auth_base}}/login
+Content-Type: application/json
+
+{
+  "email": "mc@gmail.com",
+  "password": "password"
+}
+
+# 👆 Copy the token from response and paste below:
+ @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjkiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJtY0BnbWFpbC5jb20iLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiam9obiIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlVzZXIiLCJleHAiOjE3NzIwOTg4MDcsImlzcyI6IlRhc2tGbG93QVBJIiwiYXVkIjoiVGFza0Zsb3dDbGllbnQifQ.orwi3K30vhx-IIQXIZMr8ILXNdWWBocCt9msYqtyrVQ
+
+###
+
+#########################################
+### TASK ENDPOINTS (Require JWT)
+#########################################
+
+### Get All Tasks (requires auth)
+GET {{base_address}}
+Authorization: Bearer {{token}}
+
+###
+
+### Create Task (requires auth)
 POST {{base_address}}
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-    "title": "Last one for understanding",
-    "description": "This is a new task",
-    "createdAt": "2024-06-01T10:00:00Z",
-    "dueDate": "2024-06-10T10:00:00Z",
-    "isCompleted": false
-}
-### Get Task by ID
-GET {{base_address}}/3
-### Update Task
-PUT {{base_address}}/3
-Content-Type: application/json
-
-{
-    "id": 2,
-    "title": "new Task Title Trial",
-    "description": "Updated description",
-    "createdAt": "2024-06-01T10:00:00Z",
-    "dueDate": "2024-06-15T10:00:00Z",
-    "isCompleted": true
-}
-### Delete Task
-DELETE {{base_address}}/1
-
-
-
-### Register
-POST http://localhost:5000/api/auth/register
-Content-Type: application/json
-
-{
-  "username": "mm",
-  "email": "md@gmail.com",
-  "password": "Test123!"
+  "title": "task for admin notice",
+  "description": "Created with JWT",
+  "dueDate": "2024-08-10T10:00:00Z",
+  "isCompleted": false,
+  "priority": "High"
 }
 
 ###
 
-### Login (to verify register works)
-POST http://localhost:5000/api/auth/login
-Content-Type: application/json
-
-{
-    "username": "mm",
-  "email": "md@gmail.com",
-  "password": "Test123!"
-}
+### Soft Delete Task
+DELETE {{base_address}}/3
+Authorization: Bearer {{token}}
 
 ###
 
-### Forgot password
-POST http://localhost:5000/api/auth/forgot-password
-Content-Type: application/json
-
-{
-  "email": "nelliemutethia@gmail.com"
-}
+### Get Deleted Tasks (trash)
+GET {{base_address}}/deleted
+Authorization: Bearer {{token}}
 
 ###
 
-### Reset password (after you get the token from email)
-POST http://localhost:5000/api/auth/reset-password
-Content-Type: application/json
+### Restore Task
+POST {{base_address}}/3/restore
+Authorization: Bearer {{token}}
 
-{
-  "token": "drLgQG68CQb8USYAuhIrjov1bS3976Lpf9J3wr/mATs=",
-  "newPassword": "NewPass123!"
-}
+###
 
-// get search 
+### Permanent Delete
+DELETE {{base_address}}/3/permanent
+Authorization: Bearer {{token}}
 
+###
 
+### Test without token (should fail with 401)
+GET {{base_address}}

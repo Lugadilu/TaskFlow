@@ -6,18 +6,20 @@ import TaskList from '../components/TaskList';
 import CreateTaskForm from '../components/CreateTaskForm';
 import UpdateTaskForm from '../components/UpdateTaskForm';
 import DeleteTask from '../components/DeleteTask';
-import { motion, AnimatePresence } from 'framer-motion'; // Added AnimatePresence
+import UndoToast from '../components/UndoToast';
+import ExportTasks from '../components/ExportTasks'; 
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
-  Calendar as CalendarIcon,
   Sparkles,
-  Circle,
   LogOut,
   Search,
-  Undo2, // New Undo/Close Icon
+  Undo2,
   Plus,
   Pencil,
-  Trash2
+  Trash2,
+  FileDown,
+  Shield
 } from 'lucide-react';
 
 const TaskPage = () => {
@@ -29,11 +31,15 @@ const TaskPage = () => {
   const [filter, setFilter] = useState('all'); 
   const [sortBy, setSortBy] = useState('newest');
   
-  // Changed default to null so no form is open initially unless you want 'create'
-  const [activeForm, setActiveForm] = useState(null); 
+  const [activeForm, setActiveForm] = useState(null);
+  
+  // Undo functionality
+  const [showUndo, setShowUndo] = useState(false);
+  const [deletedTaskId, setDeletedTaskId] = useState(null);
 
-  const { logout } = useAuth();
+  const { logout, isAdmin } = useAuth();
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     setGreeting(getGreeting());
@@ -66,11 +72,31 @@ const TaskPage = () => {
     }
   };
 
+  // Handle showing undo toast after delete
+  const handleShowUndo = (taskId) => {
+    setDeletedTaskId(taskId);
+    setShowUndo(true);
+  };
+
+  // Handle undo (restore task)
+  const handleUndo = async () => {
+    if (!deletedTaskId) return;
+    
+    try {
+      await taskApi.restoreTask(deletedTaskId);
+      setShowUndo(false);
+      setDeletedTaskId(null);
+      fetchTasks({ search, sortBy }); // Refresh to show restored task
+    } catch (error) {
+      console.error('Error restoring task:', error);
+    }
+  };
+
   return (
     <div className="min-h-[calc(100vh-60px)] bg-transparent text-slate-900 selection:bg-blue-100">
       <div className="max-w-6xl mx-auto px-6 py-10">
         
-        {/* Header (Keep as is) */}
+        {/* Header */}
         <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="flex items-center gap-2 text-blue-600 font-bold tracking-tight mb-1">
@@ -83,29 +109,63 @@ const TaskPage = () => {
           </motion.div>
 
           <div className="flex gap-3">
-             <div className="bg-white/80 backdrop-blur border border-slate-200 shadow-soft px-4 py-3 rounded-3xl flex items-center gap-3">
+            <div className="bg-white/80 backdrop-blur border border-slate-200 shadow-soft px-4 py-3 rounded-3xl flex items-center gap-3">
               <LayoutDashboard className="w-5 h-5 text-blue-600" />
               <p className="text-xl font-bold">{tasks.length}</p>
             </div>
-            <button onClick={() => { logout(); navigate('/login'); }} className="flex items-center gap-1 bg-red-600 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-100">
+            
+            {/*ADMIN BUTTON - Only show if user is admin */}
+            {isAdmin && (
+              <button 
+                onClick={() => navigate('/admin')} 
+                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-2xl text-sm font-medium transition-colors shadow-sm"
+              >
+                <Shield className="w-4 h-4" /> 
+                Admin
+              </button>
+            )}
+
+            {/* Trash button */}
+            <button 
+              onClick={() => navigate('/trash')} 
+              className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-2xl text-sm font-medium transition-colors shadow-sm"
+            >
+              <Trash2 className="w-4 h-4" /> 
+              Trash
+            </button>
+            
+            <button 
+              onClick={() => { logout(); navigate('/login'); }} 
+              className="flex items-center gap-1 bg-red-600 text-white px-4 py-2 rounded-2xl text-sm font-medium hover:bg-red-700 transition-colors shadow-lg shadow-red-100"
+            >
               <LogOut className="w-4 h-4" /> Logout
             </button>
           </div>
         </header>
 
-        {/* Search Bar (Keep as is) */}
+        {/* Search Bar */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
-            <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input type="text" placeholder="Search tasks..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" />
-            </div>
-            <div className="flex gap-2">
-                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="bg-white border border-slate-200 rounded-2xl px-4 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="title">Title A-Z</option>
-                </select>
-            </div>
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Search tasks..." 
+              value={search} 
+              onChange={(e) => setSearch(e.target.value)} 
+              className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none shadow-sm" 
+            />
+          </div>
+          <div className="flex gap-2">
+            <select 
+              value={sortBy} 
+              onChange={(e) => setSortBy(e.target.value)} 
+              className="bg-white border border-slate-200 rounded-2xl px-4 py-2 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="title">Title A-Z</option>
+            </select>
+          </div>
         </div>
 
         <div className="space-y-8">
@@ -119,6 +179,7 @@ const TaskPage = () => {
                   { key: 'create', label: 'Create', icon: <Plus className="w-3 h-3"/> },
                   { key: 'update', label: 'Update', icon: <Pencil className="w-3 h-3"/> },
                   { key: 'delete', label: 'Delete', icon: <Trash2 className="w-3 h-3"/> },
+                  { key: 'export', label: 'Export', icon: <FileDown className="w-3 h-3"/> },  
                 ].map((item) => (
                   <button
                     key={item.key}
@@ -135,7 +196,6 @@ const TaskPage = () => {
                   </button>
                 ))}
 
-                {/* --- NEW UNDO / CLOSE BUTTON --- */}
                 {activeForm && (
                   <button
                     onClick={() => setActiveForm(null)}
@@ -154,25 +214,69 @@ const TaskPage = () => {
 
             {/* Form Section with Animation */}
             <AnimatePresence mode="wait">
-                {activeForm === 'create' && (
-                    <motion.div key="create" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                        <CreateTaskForm onTaskCreated={() => fetchTasks({ search, sortBy })} />
-                    </motion.div>
-                )}
-                {activeForm === 'update' && (
-                    <motion.div key="update" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                        <UpdateTaskForm tasks={tasks} onTaskUpdated={() => fetchTasks({ search, sortBy })} />
-                    </motion.div>
-                )}
-                {activeForm === 'delete' && (
-                    <motion.div key="delete" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                        <DeleteTask tasks={tasks} onTaskDeleted={() => fetchTasks({ search, sortBy })} />
-                    </motion.div>
-                )}
+              {activeForm === 'create' && (
+                <motion.div 
+                  key="create" 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <CreateTaskForm onTaskCreated={() => fetchTasks({ search, sortBy })} />
+                </motion.div>
+              )}
+              {activeForm === 'update' && (
+                <motion.div 
+                  key="update" 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <UpdateTaskForm 
+                    tasks={tasks} 
+                    onTaskUpdated={() => fetchTasks({ search, sortBy })} 
+                  />
+                </motion.div>
+              )}
+              {activeForm === 'delete' && (
+                <motion.div 
+                  key="delete" 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <DeleteTask 
+                    tasks={tasks} 
+                    onTaskDeleted={() => fetchTasks({ search, sortBy })}
+                    onShowUndo={handleShowUndo}
+                  />
+                </motion.div>
+              )}
+              {/*  Export Form */}
+              {activeForm === 'export' && (
+                <motion.div 
+                  key="export" 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: 'auto' }} 
+                  exit={{ opacity: 0, height: 0 }}
+                >
+                  <ExportTasks />
+                </motion.div>
+              )}
             </AnimatePresence>
           </motion.div>
         </div>
       </div>
+
+      {/* Undo Toast */}
+      <UndoToast
+        show={showUndo}
+        message="Task moved to trash"
+        onUndo={handleUndo}
+        onClose={() => {
+          setShowUndo(false);
+          setDeletedTaskId(null);
+        }}
+      />
     </div>
   );
 };

@@ -191,3 +191,10 @@ C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\obj\Debug\net10.0\
 C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\BouncyCastle.Cryptography.dll
 C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\MailKit.dll
 C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\MimeKit.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\CsvHelper.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\iTextSharp.LGPLv2.Core.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\SkiaSharp.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\runtimes\osx\native\libSkiaSharp.dylib
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\runtimes\win-arm64\native\libSkiaSharp.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\runtimes\win-x64\native\libSkiaSharp.dll
+C:\Users\USER\Documents\projects\TaskFlow\Backend\TaskFlowAPI\bin\Debug\net10.0\runtimes\win-x86\native\libSkiaSharp.dll

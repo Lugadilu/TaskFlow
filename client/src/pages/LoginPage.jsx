@@ -4,7 +4,6 @@ import { authApi } from '../services/api';
 import { useAuth } from '../assets/contexts/AuthContext.jsx';
 import { Link, useNavigate } from 'react-router-dom';
 
-
 function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -25,15 +24,22 @@ function LoginPage() {
     try {
       // 1. Call the backend: POST /api/auth/login
       const data = await authApi.login({ email, password });
-      // 2. Backend returns { token: "..." }
-      const token = data.token;
+      
+      //  Backend now returns { token: "...", user: {...} }
+      console.log('Login response:', data); // Debug: see what backend sends
+      
+      //  Pass BOTH token and user data to login
+      // Before: login(data.token)
+      // After:  login(data.token, data.user)
+      login(data.token, data.user);  // calls login in context and set is authenticated to true
+      
+      //  ADDED: Redirect based on role
+      if (data.user.role === 'Admin') {
+        navigate('/admin'); // Admins go to admin dashboard
+      } else {
+        navigate('/'); // Regular users go to task page
+      }
 
-      // 3. Store token via AuthContext
-      //    - This saves to localStorage and sets isAuthenticated = true
-      login(token);
-      navigate('/');
-
-      // 4. After this, App.jsx will re-render and show the TaskPage
     } catch (err) {
       // Handle 401 or network errors
       if (err.response && err.response.status === 401) {
@@ -89,14 +95,13 @@ function LoginPage() {
               required
               autoComplete="current-password"
             />
-            {/* ADD THIS: Forgot password link */}
             <div className="mt-2 text-right">
-                <Link
+              <Link
                 to="/forgot-password"
                 className="text-xs text-blue-600 hover:text-blue-700 font-medium"
-                >
+              >
                 Forgot password?
-                </Link>
+              </Link>
             </div>
           </div>
 
@@ -108,18 +113,18 @@ function LoginPage() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+        
         <div className="mt-6 text-center text-sm text-slate-600">
-        Don’t have an account?{' '}
-        <Link
+          Don't have an account?{' '}
+          <Link
             to="/register"
             className="font-medium text-blue-600 hover:text-blue-700"
-        >
+          >
             Sign up here
-        </Link>
+          </Link>
         </div>
       </div>
     </div>
-    
   );
 }
 
